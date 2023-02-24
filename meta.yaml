@@ -1,0 +1,26 @@
+# it seems that `load_file_data` requires an absolute path, unlike what their documentation shows:
+# https://docs.conda.io/projects/conda-build/en/latest/resources/define-metadata.html#loading-data-from-other-files
+{% set path = os.path.join(os.environ.get('PWD'),"pyproject.toml")%}
+{% set pyproject = load_file_data(path) %}
+{% set pyproject = load_file_data(path) %}
+
+# with the pyproject.toml loaded we can extract the information needed in order to avoid duplication
+{% set version = pyproject.get('project').get('version')%}
+{% set name = pyproject.get('project').get('name')%}
+
+package:
+  name: {{name}}
+  version: {{ version }}
+
+requirements:
+  run:
+    - numpy
+  build:
+    - python
+    - setuptools
+
+test:
+  requirements:
+    - pytest
+    - hypothesis
+  

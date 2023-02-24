@@ -1,0 +1,10 @@
+[project]
+name = "mypackage"
+description = "A totally awesome package"
+version = "0.0.3"
+authors = [
+    { name = "Niels Zeilemaker", email = "nielszeilemaker@godatadriven.com" }
+]
+dependencies = [
+    "numpy"
+]
