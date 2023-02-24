@@ -1,14 +1,11 @@
-# Sharing pyproject.toml between Pip and Conda
+# The new pyproject.toml format: Sharing a build-configuration between Pip and Conda
 
-**The code for this project can be found in www.github.com/clegaard/pyproject_tutorial.git
-
-## The new format for building Python libraries
 The `pyproject.toml` is a new type of configuration file used by [Setuptools](https://setuptools.pypa.io/en/latest/index.html), [Poetry](https://python-poetry.org/) or [Flit](https://pypi.org/project/flit/).
 The format was introduced in [PEP 518](https://peps.python.org/pep-0518/), and have since been extended by [PEP 517](https://peps.python.org/pep-0517/), [PEP 621](https://peps.python.org/pep-0621/) and [PEP 660](https://peps.python.org/pep-0660/).
 
+**The code for this post can be found in this [repo](https://github.com/clegaard/pyproject_tutorial)**
 
-
-## Writing a simple library
+## 1. Writing a simple library
 
 For sake of simplicty, we will define a package with two modules `foo` and `bar`, defined as follows:
 ``` python
@@ -40,12 +37,14 @@ The final file layout should look like:
 └── pyproject.toml
 ```
 
-## Pip
+We can install the library by running:
 
 ``` bash
 python3 -m pip install --upgrade pip # make sure that pip is at the latest version
 python3 -m pip install .
 ```
+
+From here we could in publish the library to PyPI using the procedure described in [Packaging Python Code](https://packaging.python.org/en/latest/tutorials/packaging-projects/).
 
 ## Anaconda
 
@@ -59,7 +58,6 @@ To summarize the issue, Conda:
 
 Backend specific information can be expressed in the `pyproject.toml`, so it would in theory be possible for Conda to adopt the format and specific the own version of dependencies, while keeping common metadate like the version number, description and authors.
 However, this is likely to take a long time, if it even happens at all.
-
 In the meantime, we can find a way to share as much information between the two files as possible.
 Fortunately, the Conda developers has seen the writing on the wall and provide a set of functions we can use inside the `meta.yaml`, see [loading data from other files](https://docs.conda.io/projects/conda-build/en/latest/resources/define-metadata.html#loading-data-from-other-files).
 
@@ -91,14 +89,36 @@ test:
   requirements:
     - pytest
     - hypothesis
-  
 ```
+
+We can check the final configuration by running:
+```
+conda-render .
+```
+
+The output should contain the version number defined in `pyproject.toml`:
+```
+...
+package:
+  name: mypackage
+  version: 0.0.3
+...
+```
+
 
 To build the project with Conda we need to install a few dependencies:
 ``` bash
 conda install conda-build conda-verify
 conda update --all
-conda build .
-conda install --use-local mypackage
 ```
 
+Next we can build the project by invoking `conda-build`:
+```
+conda-build .
+```
+
+After building the package can be installed using the name of the package and setting the `--use-local` flag:
+``` bash
+conda install --use-local mypackage
+```
+At this stage we could publish the package to [conda-forge] by following their [instructions for contributing](https://conda-forge.org/#contribute).
